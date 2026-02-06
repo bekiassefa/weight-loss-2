@@ -3,7 +3,7 @@ import { Language } from "../types";
 
 // FIX 1: Change process.env to import.meta.env
 // FIX 2: Use the VITE_ variable name
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: (import.meta as any).env.VITE_GEMINI_API_KEY });
 
 export const getHealthAdvice = async (
   query: string,
