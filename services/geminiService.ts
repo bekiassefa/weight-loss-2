@@ -1,4 +1,9 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Language } from "../types";
+
+// Initialize the SDK with your API Key
+// @ts-ignore
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 export const getHealthAdvice = async (
   query: string,
@@ -6,43 +11,29 @@ export const getHealthAdvice = async (
   contextData: string
 ): Promise<string> => {
   try {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY; // We are using the DeepSeek key here now
-
-    const response = await fetch("https://api.deepseek.com/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "deepseek-chat", // or "deepseek-reasoner" for smarter (but slower) answers
-        messages: [
-          {
-            role: "system",
-            content: `You are Doctor JD, a supportive weight loss coach. 
-            ${language === Language.AMHARIC ? "Answer in Amharic." : "Answer in English."} 
-            Keep answers concise and practical. User context: ${contextData}`
-          },
-          {
-            role: "user",
-            content: query
-          }
-        ],
-        temperature: 0.7
-      }),
+    // BASED ON YOUR LIST: "gemini-2.5-flash" is the best free option.
+    // If you get a Quota error, change this to "gemini-2.5-flash-lite"
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash" 
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("DeepSeek API Error:", errorData);
-      throw new Error(`DeepSeek Error: ${response.statusText}`);
-    }
+    const prompt = `
+      You are Doctor JD, a supportive weight loss coach.
+      ${language === Language.AMHARIC ? "Answer in Amharic (Ethiopian language)." : "Answer in English."}
+      Keep answers concise, encouraging, and practical. 
+      User context: ${contextData}
+      
+      User Question: ${query}
+    `;
 
-    const data = await response.json();
-    return data.choices[0].message.content;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
 
   } catch (error) {
-    console.error("AI Error:", error);
+    console.error("Gemini API Error:", error);
+    
+    // Fallback error message
     return language === Language.AMHARIC
       ? "ይቅርታ፣ ችግር አጋጥሟል። እባክዎ እንደገና ይሞክሩ።"
       : "Sorry, I encountered an issue. Please try again.";
