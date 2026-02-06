@@ -1,9 +1,8 @@
 import { GoogleGenAI } from "@google/genai";
 import { Language } from "../types";
 
-// FIX 1: Change process.env to import.meta.env
-// FIX 2: Use the VITE_ variable name
-const ai = new GoogleGenAI({ apiKey: (import.meta as any).env.VITE_GEMINI_API_KEY });
+// @ts-ignore
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export const getHealthAdvice = async (
   query: string,
@@ -23,16 +22,18 @@ export const getHealthAdvice = async (
       Context about the user: ${contextData}
     `;
 
-    // FIX 3: 'gemini-3' does not exist yet. Switched to a valid model name.
+    // Using the experimental flash model which is faster and cheaper
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp", // Or 'gemini-1.5-flash'
+      model: "gemini-2.0-flash-exp",
       contents: query,
       config: {
         systemInstruction: systemInstruction,
       },
     });
 
-    return response.text || "I'm here to support you. Please try asking again.";
+    return (
+      response.text() || "I'm here to support you. Please try asking again."
+    );
   } catch (error) {
     console.error("Gemini API Error:", error);
     return language === Language.AMHARIC
