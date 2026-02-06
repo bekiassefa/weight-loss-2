@@ -1,8 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 import { Language } from "../types";
 
+<<<<<<< HEAD
 // @ts-ignore
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+=======
+// We define the API key separately and cast it to 'any' to stop the TypeScript error
+const apiKey = (import.meta as unknown as any).env.VITE_GEMINI_API_KEY;
+
+// Initialize the AI with the key
+const ai = new GoogleGenAI({ apiKey: apiKey });
+>>>>>>> d905890ff819846fd49021348dd038fe902ec84d
 
 export const getHealthAdvice = async (
   query: string,
@@ -22,18 +30,31 @@ export const getHealthAdvice = async (
       Context about the user: ${contextData}
     `;
 
+<<<<<<< HEAD
     // Using the experimental flash model which is faster and cheaper
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash-exp",
+=======
+    // Using the flash model
+    const response = await ai.models.generateContent({
+      model: "gemini-1.5-flash",
+>>>>>>> d905890ff819846fd49021348dd038fe902ec84d
       contents: query,
       config: {
         systemInstruction: systemInstruction,
       },
     });
 
+<<<<<<< HEAD
     return (
       response.text() || "I'm here to support you. Please try asking again."
     );
+=======
+    // FIX: Use 'response.text' directly (no parentheses)
+    const responseText = response.text || "I'm here to support you.";
+    return responseText as string;
+
+>>>>>>> d905890ff819846fd49021348dd038fe902ec84d
   } catch (error) {
     console.error("Gemini API Error:", error);
     return language === Language.AMHARIC
