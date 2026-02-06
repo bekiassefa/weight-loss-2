@@ -13,7 +13,7 @@ export const getHealthAdvice = async (
   try {
     // 1. Select the Model (gemini-1.5-flash is perfect here)
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-pro",
+      model: "gemini-1.5-flash-8b",
       systemInstruction: {
         role: "system",
         parts: [{ text: `You are Doctor JD, a supportive weight loss coach. 
