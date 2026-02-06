@@ -1,60 +1,34 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai"; // <--- Standard Import
 import { Language } from "../types";
 
-<<<<<<< HEAD
+// Initialize the Standard SDK
 // @ts-ignore
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
-=======
-// We define the API key separately and cast it to 'any' to stop the TypeScript error
-const apiKey = (import.meta as unknown as any).env.VITE_GEMINI_API_KEY;
-
-// Initialize the AI with the key
-const ai = new GoogleGenAI({ apiKey: apiKey });
->>>>>>> d905890ff819846fd49021348dd038fe902ec84d
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 export const getHealthAdvice = async (
   query: string,
   language: Language,
-  contextData: string,
+  contextData: string
 ): Promise<string> => {
   try {
-    const langInstruction =
-      language === Language.AMHARIC
-        ? "Answer in Amharic (Ethiopian language). Be encouraging and supportive like a kind doctor."
-        : "Answer in English. Be encouraging and supportive like a kind doctor.";
-
-    const systemInstruction = `
-      You are Doctor JD, a supportive weight loss coach for women in Ethiopia.
-      ${langInstruction}
-      Keep answers concise (under 100 words) and practical.
-      Context about the user: ${contextData}
-    `;
-
-<<<<<<< HEAD
-    // Using the experimental flash model which is faster and cheaper
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp",
-=======
-    // Using the flash model
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
->>>>>>> d905890ff819846fd49021348dd038fe902ec84d
-      contents: query,
-      config: {
-        systemInstruction: systemInstruction,
-      },
+    // 1. Select the Model (gemini-1.5-flash is perfect here)
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash",
+      systemInstruction: {
+        role: "system",
+        parts: [{ text: `You are Doctor JD, a supportive weight loss coach. 
+        ${language === Language.AMHARIC ? "Answer in Amharic." : "Answer in English."} 
+        Keep answers concise and practical. User context: ${contextData}` }]
+      }
     });
 
-<<<<<<< HEAD
-    return (
-      response.text() || "I'm here to support you. Please try asking again."
-    );
-=======
-    // FIX: Use 'response.text' directly (no parentheses)
-    const responseText = response.text || "I'm here to support you.";
-    return responseText as string;
+    // 2. Generate Content
+    const result = await model.generateContent(query);
+    const response = await result.response;
+    
+    // 3. Return Text
+    return response.text();
 
->>>>>>> d905890ff819846fd49021348dd038fe902ec84d
   } catch (error) {
     console.error("Gemini API Error:", error);
     return language === Language.AMHARIC
