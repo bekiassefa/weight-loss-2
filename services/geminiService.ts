@@ -34,9 +34,9 @@ export const getHealthAdvice = async (
       },
     });
 
-    // Added checks to ensure text() exists
-    const responseText = response.text ? response.text() : "I'm here to support you.";
-    return responseText;
+    // FIX: Use 'response.text' directly (no parentheses)
+    const responseText = response.text || "I'm here to support you.";
+    return responseText as string;
 
   } catch (error) {
     console.error("Gemini API Error:", error);
