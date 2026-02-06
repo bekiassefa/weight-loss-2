@@ -19,7 +19,7 @@ const BASE_STORAGE_KEY = 'jd_weight_loss_data';
 const App: React.FC = () => {
   const [language, setLanguage] = useState<Language>(Language.ENGLISH);
   const [currentPage, setCurrentPage] = useState<Page>(Page.DASHBOARD);
-  
+   
   // Auth State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUsername, setCurrentUsername] = useState<string | null>(null);
@@ -335,7 +335,18 @@ const App: React.FC = () => {
           </div>
         );
       default:
-        return <Dashboard user={user} language={language} onNavigate={setCurrentPage} onLogWeight={handleLogWeight} />;
+        // FIX: Added missing props here to match Dashboard interface
+        return (
+          <Dashboard 
+            user={user} 
+            language={language} 
+            onNavigate={setCurrentPage} 
+            onLogWeight={handleLogWeight}
+            completedMealsCount={Array.from(completedMealsSet).filter((k: string) => k.startsWith(currentDayKey)).length}
+            completedExercisesCount={completedChallengeDaysSet.size} 
+            currentDay={currentDayKey}
+          />
+        );
     }
   };
 
