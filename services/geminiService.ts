@@ -27,7 +27,7 @@ export const getHealthAdvice = async (
 
     // Using the flash model
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.0-flash",
       contents: query,
       config: {
         systemInstruction: systemInstruction,
